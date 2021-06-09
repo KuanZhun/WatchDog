@@ -1,0 +1,9 @@
+﻿[
+  {
+    "FileName": "C:\\Users\\fei\\source\\repos\\WatchDog\\WatchDog\\TestApp.exe",
+    "WorkingDirectory": "C:\\Users\\fei\\source\\repos\\WatchDog\\WatchDog",
+    "RestartTimer": "12:00:00",
+    "RestartDelay": "00:00:03",
+    "Retry": 3
+  }
+]

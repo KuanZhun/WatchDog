@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "WatchDog": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}
