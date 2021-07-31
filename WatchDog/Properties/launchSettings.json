@@ -2,6 +2,7 @@
   "profiles": {
     "WatchDog": {
       "commandName": "Project",
+      "commandLineArgs": "--WorkDirectory C:\\Users\\fei\\source\\repos\\WatchDog\\WatchDog",
       "environmentVariables": {
         "DOTNET_ENVIRONMENT": "Development"
       }

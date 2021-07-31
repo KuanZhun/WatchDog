@@ -16,33 +16,40 @@ namespace WatchDog
         {
             try
             {
-                Directory.SetCurrentDirectory(args[Array.IndexOf(args, "--WorkDirectory") + 1]);
+                //Directory.SetCurrentDirectory(args[Array.IndexOf(args, "--WorkDirectory") + 1]);
                 if (!File.Exists(settingsFilePath))
                     File.WriteAllText(settingsFilePath, JsonConvert.SerializeObject(new Setting[]
                     {
-                    new Setting()
-                    {
-                        FileName = Path.Combine(Directory.GetCurrentDirectory(), "TestApp.exe"),
-                        WorkingDirectory = Path.Combine(Directory.GetCurrentDirectory()),
-                        RestartDelay = TimeSpan.FromSeconds(3),
-                        RestartTimer = TimeSpan.FromHours(12),
-                        Retry = 3
-                    }
+                        new Setting()
+                        {
+                            FileName = Path.Combine(Directory.GetCurrentDirectory(), "TestApp.exe"),
+                            Arguments = "",
+                            WorkingDirectory = Path.Combine(Directory.GetCurrentDirectory()),
+                            RestartDelay = TimeSpan.FromSeconds(3),
+                            RestartTimer = TimeSpan.FromHours(12),
+                            Retry = 3
+                        }
                     }, Formatting.Indented), Encoding.UTF8);
-                Setting[] settings = JsonConvert.DeserializeObject<Setting[]>(File.ReadAllText(settingsFilePath, Encoding.UTF8));
+                Console.WriteLine("Settings File Path: " + settingsFilePath + "\r\n");
+                string fileString = File.ReadAllText(settingsFilePath, Encoding.UTF8);
+                Console.WriteLine("File String: " + fileString + "\r\n");
+                Setting[] settings = JsonConvert.DeserializeObject<Setting[]>(fileString);
+                Console.WriteLine("Setting Array: " + JsonConvert.SerializeObject(settings) + "\r\n");
                 foreach (Setting item in settings)
                 {
                     item.Start();
                 }
-                Host.CreateDefaultBuilder(args)
-                    .UseWindowsService().Build().Run();
-                    //.ConfigureServices((hostContext, services) =>
-                    //{
-                    //    services.AddHostedService<Worker>();
-                    //})
+                Process.GetCurrentProcess().WaitForExit();
+                //Host.CreateDefaultBuilder(args)
+                //    .UseWindowsService().Build().Run();
+                //.ConfigureServices((hostContext, services) =>
+                //{
+                //    services.AddHostedService<Worker>();
+                //})
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Console.WriteLine(ex);
                 Console.WriteLine("未設定正確的啟動參數。");
             }
         }
@@ -50,6 +57,7 @@ namespace WatchDog
     public class Setting : IDisposable
     {
         public string FileName { get; set; }
+        public string Arguments { get; set; }
         public string WorkingDirectory { get; set; }
         public TimeSpan RestartTimer { get; set; }
         public TimeSpan RestartDelay { get; set; }
@@ -66,14 +74,15 @@ namespace WatchDog
                 process = Process.Start(new ProcessStartInfo()
                 {
                     FileName = FileName,
+                    Arguments = Arguments,
                     WorkingDirectory = WorkingDirectory
                 });
-                Process[] processes = Process.GetProcessesByName(process.ProcessName);
-                foreach (Process item in processes)
-                {
-                    if (item.Id != process.Id)
-                        item.Kill();
-                }
+                //Process[] processes = Process.GetProcessesByName(process.ProcessName);
+                //foreach (Process item in processes)
+                //{
+                //    if (item.Id != process.Id)
+                //        item.Kill();
+                //}
                 _mainCancellation = new CancellationTokenSource();
                 _mainTask = Task.Run(Main, _mainCancellation.Token);
             }
@@ -114,6 +123,7 @@ namespace WatchDog
                 process = Process.Start(new ProcessStartInfo()
                 {
                     FileName = FileName,
+                    Arguments = Arguments,
                     WorkingDirectory = WorkingDirectory
                 });
                 _hasExitedBuffer = false;
